@@ -42,9 +42,12 @@ module Fluent
       def start
         super
 
-        Signal.trap('INT', 'TERM') do |signo|
-          @io.close
-          exit 0
+        Signal.trap(:INT, 'EXIT') do |signo|
+          shutdown
+        end
+
+        Signal.trap(:TERM, 'EXIT') do |signo|
+          shutdown
         end
 
         parser = ProxysqlQueryLog::Parser.new
@@ -76,6 +79,12 @@ module Fluent
           router.emit('', query.start_time/1000/1000, record)
           @pos_storage.put(:journal, @io.pos)
         end
+      end
+
+      def shutdown
+        @io.close unless @io.closed?
+
+        super
       end
 
       private
