@@ -82,7 +82,9 @@ module Fluent
 
       def seek
         cursor = @pos_storage.get(:journal)
-        @io.seek(cursor, IO::SEEK_SET)
+        if cursor
+          @io.seek(cursor, IO::SEEK_SET)
+        end
       end
     end
   end
