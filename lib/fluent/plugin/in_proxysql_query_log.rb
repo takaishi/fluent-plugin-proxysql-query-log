@@ -73,7 +73,7 @@ module Fluent
               'digest' => query.digest,
               'query' => query.query
           }
-          router.emit('', query.start_time, record)
+          router.emit('', query.start_time/1000/1000, record)
           @pos_storage.put(:journal, @io.pos)
         end
       end
