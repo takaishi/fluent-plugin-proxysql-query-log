@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/takaishi/proxysql_query_log-parser
-  revision: 2b306b5790fd1587cc1d57bca6c78a22d06663d5
+  revision: bdee89e7fc2c1ec68b1ce2339708403bd7f0072d
   specs:
     proxysql_query_log-parser (0.0.1)
 
