@@ -61,11 +61,6 @@ module Fluent
           shutdown
         end
 
-        if @pos_file
-          @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, @file_perm)
-          @pf_file.sync = true
-          @pf = PositionFile.parse(@pf_file)
-        end
         target_paths = expand_paths
         start_watchers(target_paths)
       end
