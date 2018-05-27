@@ -8,6 +8,7 @@ PATH
   remote: .
   specs:
     fluent-plugin-proxysql-query-log (0.1.0)
+      cool.io
       fluentd (>= 0.14.10, < 2)
 
 GEM

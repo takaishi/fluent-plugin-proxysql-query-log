@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "test-unit", "~> 3.0"
   spec.add_development_dependency "fluent-plugin-systemd"
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
+  spec.add_dependency 'cool.io'
 end
