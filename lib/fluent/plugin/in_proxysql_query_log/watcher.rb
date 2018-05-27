@@ -5,6 +5,7 @@ module Fluent
         def initialize(path, interval, pos_storage, router, log)
           super(path, interval)
 
+          @parser = ProxysqlQueryLog::Parser.new
           @pos_storage = pos_storage
           @router = router
           @log = log
@@ -26,7 +27,6 @@ module Fluent
         end
 
         def read
-          parser = ProxysqlQueryLog::Parser.new
           @io = File.open(@path)
           seek(@path)
 
@@ -37,7 +37,7 @@ module Fluent
             total_bytes = raw_total_bytes.unpack('C')[0]
             @io.seek(7, IO::SEEK_CUR)
             raw = @io.read(total_bytes)
-            query = parser.parse(StringIO.new(raw, 'r+'))
+            query = @parser.parse(StringIO.new(raw, 'r+'))
             record = {
                 'thread_id' => query.thread_id,
                 'username' => query.username,
