@@ -14,9 +14,7 @@ module Fluent
 
         def seek(path)
           cursor = @pos_storage.get(path)
-          if cursor
-            @io.seek(cursor, IO::SEEK_SET)
-          end
+          @io.seek(cursor, IO::SEEK_SET) if cursor
         end
 
         def on_change(previous, current)
