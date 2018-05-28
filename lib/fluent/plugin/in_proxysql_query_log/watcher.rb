@@ -38,22 +38,25 @@ module Fluent
             @io.seek(7, IO::SEEK_CUR)
             raw = @io.read(total_bytes)
             query = @parser.parse(StringIO.new(raw, 'r+'))
-            record = {
-                'thread_id' => query.thread_id,
-                'username' => query.username,
-                'schema_name' => query.schema_name,
-                'client' => query.client,
-                'HID' => query.hid,
-                'server' => query.server,
-                'start_time' => Time.at(query.start_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
-                'end_time' => Time.at(query.end_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
-                'duration' => query.end_time - query.start_time,
-                'digest' => query.digest,
-                'query' => query.query
-            }
-            @router.emit('', query.start_time/1000/1000, record)
+            @router.emit('', query.start_time/1000/1000, record(query))
             @pos_storage.put(@path, @io.pos)
           end
+        end
+
+        def record(query)
+          {
+              'thread_id' => query.thread_id,
+              'username' => query.username,
+              'schema_name' => query.schema_name,
+              'client' => query.client,
+              'HID' => query.hid,
+              'server' => query.server,
+              'start_time' => Time.at(query.start_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
+              'end_time' => Time.at(query.end_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
+              'duration' => query.end_time - query.start_time,
+              'digest' => query.digest,
+              'query' => query.query
+          }
         end
       end
     end
