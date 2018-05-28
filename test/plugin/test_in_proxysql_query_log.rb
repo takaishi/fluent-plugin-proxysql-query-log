@@ -7,11 +7,10 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   end
 
   TMP_DIR = File.dirname(__FILE__) + '/../tmp/proxysql_query_log'
-  CONFIG = config_element("ROOT", "", {
-      "path" => "#{TMP_DIR}/query_log"
+  CONFIG = config_element('ROOT', '', {
+      'path' => "#{TMP_DIR}/query_log"
   })
 
-  SINGLE_LINE_CONFIG = config_element("", "", { "format" => "/(?<message>.*)/" })
   test 'singlefile' do
     File.open("#{TMP_DIR}/query_log", 'wb') {|f|
       write_record(f)
