@@ -10,6 +10,7 @@ module Fluent
           @router = router
           @tag = tag
           @log = log
+          @attached = false
           read
         end
 
@@ -59,6 +60,19 @@ module Fluent
 
         def convert_time(t)
           Time.at(t/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S')
+        end
+
+        def attach(loop)
+          @attached = true
+          super
+        end
+
+        def detach
+          @attached = false
+          super
+        end
+        def attached?
+          @attached
         end
       end
     end
