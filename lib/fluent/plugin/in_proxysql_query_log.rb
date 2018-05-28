@@ -17,6 +17,7 @@ require 'cool.io'
 require 'proxysql_query_log/parser'
 
 require 'fluent/plugin/input'
+require 'fluent/event'
 require 'fluent/plugin/in_proxysql_query_log/watcher'
 
 module Fluent
@@ -24,7 +25,7 @@ module Fluent
     class ProxysqlQueryLogInput < Fluent::Plugin::Input
       Fluent::Plugin.register_input("proxysql_query_log", self)
 
-      helpers :storage
+      helpers :event_loop, :storage
 
       DEFAULT_STORAGE_TYPE = 'local'
 
@@ -54,34 +55,19 @@ module Fluent
       def start
         super
 
-        Signal.trap(:INT, 'EXIT') do |signo|
-          shutdown
-        end
-
-        Signal.trap(:TERM, 'EXIT') do |signo|
-          shutdown
-        end
-
         target_paths = expand_paths
         start_watchers(target_paths)
       end
 
       def start_watchers(paths)
-        reactor = Coolio::Loop.new
 
         paths.each do |path|
           log.debug("start watch: #{path}")
           w = Watcher.new(path, 0, @pos_storage, router, log)
-          reactor.attach(w)
+          event_loop_attach(w)
+
           @watchers[path] = w
         end
-        reactor.run
-      end
-
-      def shutdown
-        @io.close unless @io.closed?
-
-        super
       end
 
       private
