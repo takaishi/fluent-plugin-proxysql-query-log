@@ -30,8 +30,7 @@ module Fluent
           @io = File.open(@path)
           seek(@path)
 
-          while
-          raw_total_bytes = @io.read(1)
+          while raw_total_bytes = @io.read(1)
             return unless raw_total_bytes
 
             total_bytes = raw_total_bytes.unpack('C')[0]
