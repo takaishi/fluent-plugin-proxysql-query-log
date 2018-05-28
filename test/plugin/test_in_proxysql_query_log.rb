@@ -41,36 +41,71 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   private
 
   def write_record(f)
-    f.write([92, 0, 0, 0, 0, 0, 0, 0].pack('C*'))
-    f.write([0].pack('C*'))
+    q = ProxysqlQueryLog::Query.new
+    q.thread_id = 9
+    q.username = 'root'
+    q.schema_name = 'alpaca'
+    q.client = '127.0.0.1:34612'
+    q.hid = 0
+    q.server = '127.0.0.1:3306'
+    q.start_time = 1525944256367381
+    q.end_time = 1525944256367837
+    q.digest = '0xD69C6B36F32D2EAE'
+    q.query = 'SELECT * FROM test'
+    size = 0
+    buf = ''
+    io = StringIO.new(buf)
 
-    f.write([9].pack('C*'))
+    io.write([0].pack('C*'))
+    size += 1
+    io.write([q.thread_id].pack('C*'))
+    size += 1
 
-    f.write([4].pack('C*'))
-    f.write('root')
+    io.write([q.username.size].pack('C*'))
+    size += 1
+    io.write(q.username)
+    size += q.username.size
 
-    f.write([6].pack('C*'))
-    f.write('alpaca')
+    io.write([q.schema_name.size].pack('C*'))
+    size += 1
+    io.write(q.schema_name)
+    size += q.schema_name.size
 
-    f.write([15].pack('C*'))
-    f.write('127.0.0.1:34612')
+    io.write([q.client.size].pack('C*'))
+    size += 1
+    io.write(q.client)
+    size += q.client.size
 
-    f.write([0].pack('C*'))
+    io.write([q.hid].pack('C*'))
+    size += 1
 
-    f.write([14].pack('C*'))
-    f.write('127.0.0.1:3306')
+    io.write([q.server.size].pack('C*'))
+    size += 1
+    io.write(q.server)
+    size += q.server.size
 
-    f.write([0xfe].pack('C*'))
-    f.write([1525944256367381].pack('Q*'))
+    io.write([0xfe].pack('C*'))
+    size += 1
+    io.write([q.start_time].pack('Q*'))
+    size += 8
 
-    f.write([0xfe].pack('C*'))
-    f.write([1525944256367837].pack('Q*'))
+    io.write([0xfe].pack('C*'))
+    size += 1
+    io.write([q.end_time].pack('Q*'))
+    size += 8
 
-    f.write([0xfe].pack('C*'))
-    f.write('0xD69C6B36F32D2EAE'.gsub(/0x/, '').scan(/.{1,8}/).map{|s| s.hex}.pack('I*'))
+    io.write([0xfe].pack('C*'))
+    size += 1
+    io.write(q.digest.gsub(/0x/, '').scan(/.{1,8}/).map{|s| s.hex}.pack('I*'))
+    size += 8
 
-    f.write([18].pack('C*'))
-    f.write('SELECT * FROM test')
+    io.write([q.query.size].pack('C*'))
+    size += 1
+    io.write(q.query)
+    size += q.query.size
+
+    f.write([size, 0, 0, 0, 0, 0, 0, 0].pack('C*'))
+    f.write(buf)
   end
 
   def create_driver(conf)
