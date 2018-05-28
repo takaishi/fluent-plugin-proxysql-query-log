@@ -48,12 +48,16 @@ module Fluent
               'client' => query.client,
               'HID' => query.hid,
               'server' => query.server,
-              'start_time' => Time.at(query.start_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
-              'end_time' => Time.at(query.end_time/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S'),
+              'start_time' => convert_time(query.start_time),
+              'end_time' => convert_time(query.end_time),
               'duration' => query.end_time - query.start_time,
               'digest' => query.digest,
               'query' => query.query
           }
+        end
+
+        def convert_time(t)
+          Time.at(t/1000/1000).utc.strftime('%Y-%m-%d %H:%M:%S')
         end
       end
     end
