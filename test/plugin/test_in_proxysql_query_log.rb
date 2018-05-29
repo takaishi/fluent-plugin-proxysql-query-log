@@ -49,7 +49,8 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
 
   TMP_DIR = File.dirname(__FILE__) + '/../tmp/proxysql_query_log'
   CONFIG = config_element('ROOT', '', {
-      'path' => "#{TMP_DIR}/query_log"
+      'path' => "#{TMP_DIR}/query_log",
+      'tag' => 't1',
   })
 
   test 'singlefile' do
