@@ -2,12 +2,13 @@ module Fluent
   module Plugin
     class ProxysqlQueryLogInput < Fluent::Plugin::Input
       class Watcher < Coolio::StatWatcher
-        def initialize(path, interval, pos_storage, router, log)
+        def initialize(path, interval, pos_storage, router, tag, log)
           super(path, interval)
 
           @parser = ProxysqlQueryLog::Parser.new
           @pos_storage = pos_storage
           @router = router
+          @tag = tag
           @log = log
           read
         end
@@ -35,7 +36,7 @@ module Fluent
             @io.seek(7, IO::SEEK_CUR)
             raw = @io.read(total_bytes)
             query = @parser.parse(StringIO.new(raw, 'r+'))
-            @router.emit('', query.start_time/1000/1000, record(query))
+            @router.emit(@tag, query.start_time/1000/1000, record(query))
             @pos_storage.put(@path, @io.pos)
           end
         end

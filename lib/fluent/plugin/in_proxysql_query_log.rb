@@ -33,6 +33,7 @@ module Fluent
       config_param :read_from_head, :bool, default: false
       desc 'The paths to exclude the files from watcher list.'
       config_param :exclude_path, :array, default: []
+      config_param :tag, :string
 
       config_section :storage do
         config_set_default :usage, 'positions'
@@ -63,7 +64,7 @@ module Fluent
 
         paths.each do |path|
           log.debug("start watch: #{path}")
-          w = Watcher.new(path, 0, @pos_storage, router, log)
+          w = Watcher.new(path, 0, @pos_storage, router, @tag, log)
           event_loop_attach(w)
 
           @watchers[path] = w
