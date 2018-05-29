@@ -1,15 +1,10 @@
-GIT
-  remote: https://github.com/takaishi/proxysql_query_log-parser
-  revision: bdee89e7fc2c1ec68b1ce2339708403bd7f0072d
-  specs:
-    proxysql_query_log-parser (0.0.1)
-
 PATH
   remote: .
   specs:
     fluent-plugin-proxysql-query-log (0.1.0)
       cool.io
       fluentd (>= 0.14.10, < 2)
+      proxysql_query_log-parser
 
 GEM
   remote: https://rubygems.org/
@@ -34,6 +29,7 @@ GEM
     http_parser.rb (0.6.0)
     msgpack (1.2.4)
     power_assert (1.1.1)
+    proxysql_query_log-parser (0.0.2)
     rake (12.3.1)
     serverengine (2.0.6)
       sigdump (~> 0.2.2)
@@ -57,7 +53,6 @@ DEPENDENCIES
   bundler (~> 1.14)
   fluent-plugin-proxysql-query-log!
   fluent-plugin-systemd
-  proxysql_query_log-parser!
   rake (~> 12.0)
   test-unit (~> 3.0)
 
