@@ -1,5 +1,7 @@
 # fluent-plugin-proxysql-query-log
 
+[![Build Status](https://travis-ci.org/takaishi/fluent-plugin-proxysql-query-log.svg?branch=master)](https://travis-ci.org/takaishi/fluent-plugin-proxysql-query-log)
+
 [Fluentd](https://fluentd.org/) input plugin to do something.
 
 TODO: write description for you plugin.
