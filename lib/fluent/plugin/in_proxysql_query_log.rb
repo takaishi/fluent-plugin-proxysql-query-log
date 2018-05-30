@@ -25,7 +25,7 @@ module Fluent
     class ProxysqlQueryLogInput < Fluent::Plugin::Input
       Fluent::Plugin.register_input("proxysql_query_log", self)
 
-      helpers :event_loop, :storage
+      helpers :event_loop, :storage, :timer
 
       DEFAULT_STORAGE_TYPE = 'local'
 
@@ -56,7 +56,13 @@ module Fluent
       def start
         super
 
+        refresh_watchers
+        timer_execute(:in_proxysql_query_log_refresh_watchers, 5, &method(:refresh_watchers))
+      end
+
+      def refresh_watchers
         target_paths = expand_paths
+        stop_watchers(target_paths)
         start_watchers(target_paths)
       end
 
@@ -68,6 +74,13 @@ module Fluent
           event_loop_attach(w)
 
           @watchers[path] = w
+        end
+      end
+
+      def stop_watchers(paths)
+        paths.each do |path|
+          w = @watchers[path]
+          event_loop_detach(w) if w
         end
       end
 
