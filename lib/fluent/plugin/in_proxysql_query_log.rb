@@ -33,6 +33,7 @@ module Fluent
       config_param :read_from_head, :bool, default: false
       desc 'The paths to exclude the files from watcher list.'
       config_param :exclude_path, :array, default: []
+      config_param :refresh_interval, :time, default: 60
       config_param :tag, :string
 
       config_section :storage do
@@ -57,7 +58,7 @@ module Fluent
         super
 
         refresh_watchers
-        timer_execute(:in_proxysql_query_log_refresh_watchers, 5, &method(:refresh_watchers))
+        timer_execute(:in_proxysql_query_log_refresh_watchers, @refresh_interval, &method(:refresh_watchers))
       end
 
       def refresh_watchers
