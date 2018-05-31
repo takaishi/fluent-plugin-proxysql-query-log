@@ -81,7 +81,7 @@ module Fluent
       def stop_watchers(paths)
         paths.each do |path|
           w = @watchers[path]
-          event_loop_detach(w) if w
+          w.detach if w
         end
       end
 
