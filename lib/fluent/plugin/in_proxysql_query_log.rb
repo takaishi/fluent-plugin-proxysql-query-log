@@ -69,6 +69,7 @@ module Fluent
       def start_watchers(paths)
 
         paths.each do |path|
+          p path
           log.debug("start watch: #{path}")
           w = Watcher.new(path, 0, @pos_storage, router, @tag, log)
           event_loop_attach(w)
