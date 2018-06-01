@@ -30,6 +30,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     end
 
     events = d.events
+    assert_equal(1, d.instance.instance_variable_get('@watchers').size)
     assert_equal(true, events.length > 0)
     assert_equal(1, 1)
     assert_equal(9, events[0][2]['thread_id'])
@@ -64,6 +65,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     end
 
     p events = d.events
+    assert_equal(2, d.instance.instance_variable_get('@watchers').size)
     assert_equal(true, events.length > 0)
     assert_equal(1, 1)
     assert_equal(9, events[0][2]['thread_id'])
