@@ -17,15 +17,28 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
       'tag' => 't1',
   })
 
+  QUERY_1 = {
+      thread_id: 9,
+      username: 'root',
+      schema_name: 'alpaca',
+      client: '127.0.0.1:34612',
+      hid: 0,
+      server: '127.0.0.1:3306',
+      start_time: 1525944256367381,
+      end_time: 1525944256367837,
+      digest: '0xD69C6B36F32D2EAE',
+      query: 'SELECT * FROM test'
+  }
+
   test 'singlefile' do
     File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
-      write_record(f)
+      write_record(f, QUERY_1)
     }
     config = CONFIG
     d = create_driver(config)
     d.run(expect_emits: 1) do
       File.open("#{TMP_DIR}/query_log.00000001", "ab") {|f|
-        write_record(f)
+        write_record(f, QUERY_1)
       }
     end
 
@@ -46,21 +59,34 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   end
 
   test 'multifile' do
+    QUERY_1 = {
+        thread_id: 9,
+        username: 'root',
+        schema_name: 'alpaca',
+        client: '127.0.0.1:34612',
+        hid: 0,
+        server: '127.0.0.1:3306',
+        start_time: 1525944256367381,
+        end_time: 1525944256367837,
+        digest: '0xD69C6B36F32D2EAE',
+        query: 'SELECT * FROM test'
+    }
+
     File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
-      write_record(f)
+      write_record(f, QUERY_1)
     }
     File.open("#{TMP_DIR}/query_log.00000002", 'wb') {|f|
-      write_record(f)
+      write_record(f, QUERY_1)
     }
 
     config = MULTI_FILE_CONFIG
     d = create_driver(config)
     d.run(expect_emits: 2) do
       File.open("#{TMP_DIR}/query_log.00000001", "ab") {|f|
-        write_record(f)
+        write_record(f, QUERY_1)
       }
       File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
-        write_record(f)
+        write_record(f, QUERY_1)
       }
     end
 
@@ -82,18 +108,18 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
 
   private
 
-  def write_record(f)
+  def write_record(f, param)
     q = ProxysqlQueryLog::Query.new
-    q.thread_id = 9
-    q.username = 'root'
-    q.schema_name = 'alpaca'
-    q.client = '127.0.0.1:34612'
-    q.hid = 0
-    q.server = '127.0.0.1:3306'
-    q.start_time = 1525944256367381
-    q.end_time = 1525944256367837
-    q.digest = '0xD69C6B36F32D2EAE'
-    q.query = 'SELECT * FROM test'
+    q.thread_id = param[:thread_id]
+    q.username = param[:username]
+    q.schema_name = param[:schema_name]
+    q.client = param[:client]
+    q.hid = param[:hid]
+    q.server = param[:server]
+    q.start_time = param[:start_time]
+    q.end_time = param[:end_time]
+    q.digest = param[:digest]
+    q.query = param[:query]
 
     f.write([total_length(q), 0, 0, 0, 0, 0, 0, 0].pack('C*'))
     f.write(to_binary(q))
