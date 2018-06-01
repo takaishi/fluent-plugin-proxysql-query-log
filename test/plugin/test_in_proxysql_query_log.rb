@@ -52,7 +52,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
       write_record(f)
     }
 
-    p config = MULTI_FILE_CONFIG
+    config = MULTI_FILE_CONFIG
     d = create_driver(config)
     d.run(expect_emits: 2) do
       File.open("#{TMP_DIR}/query_log.00000001", "ab") {|f|
