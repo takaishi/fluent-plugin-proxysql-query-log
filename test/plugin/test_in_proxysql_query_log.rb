@@ -30,6 +30,19 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
       query: 'SELECT * FROM test'
   }
 
+  QUERY_2 = {
+      thread_id: 9,
+      username: 'root',
+      schema_name: 'alpaca',
+      client: '127.0.0.1:34612',
+      hid: 0,
+      server: '127.0.0.1:3306',
+      start_time: 1525944256367381,
+      end_time: 1525944256367837,
+      digest: '0xD69C6B36F32D2EAE',
+      query: 'show databases'
+  }
+
   test 'singlefile' do
     File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
       write_record(f, QUERY_1)
@@ -59,19 +72,6 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   end
 
   test 'multifile' do
-    QUERY_1 = {
-        thread_id: 9,
-        username: 'root',
-        schema_name: 'alpaca',
-        client: '127.0.0.1:34612',
-        hid: 0,
-        server: '127.0.0.1:3306',
-        start_time: 1525944256367381,
-        end_time: 1525944256367837,
-        digest: '0xD69C6B36F32D2EAE',
-        query: 'SELECT * FROM test'
-    }
-
     File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
       write_record(f, QUERY_1)
     }
@@ -86,7 +86,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
         write_record(f, QUERY_1)
       }
       File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
-        write_record(f, QUERY_1)
+        write_record(f, QUERY_2)
       }
     end
 
@@ -104,6 +104,21 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[0][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
     assert_equal('SELECT * FROM test', events[0][2]['query'])
+
+    assert_equal(2, d.instance.instance_variable_get('@watchers').size)
+    assert_equal(true, events.length > 0)
+    assert_equal(1, 1)
+    assert_equal(9, events[1][2]['thread_id'])
+    assert_equal('root', events[1][2]['username'])
+    assert_equal('alpaca', events[1][2]['schema_name'])
+    assert_equal('127.0.0.1:34612', events[1][2]['client'])
+    assert_equal(0, events[1][2]['HID'])
+    assert_equal('127.0.0.1:3306', events[1][2]['server'])
+    assert_equal('2018-05-10 09:24:16', events[1][2]['start_time'])
+    assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
+    assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
+    assert_equal('show databases', events[1][2]['query'])
+
   end
 
   private
