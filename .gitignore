@@ -1,2 +1,3 @@
 vendor
 .bundle/config
+test/tmp/proxysql_query_log/query_log*
