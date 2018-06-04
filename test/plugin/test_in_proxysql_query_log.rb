@@ -121,6 +121,57 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('show databases', events[1][2]['query'])
   end
 
+  test 'rotate_file' do
+    File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
+      write_record(f, QUERY_1)
+    }
+
+    config = MULTI_FILE_CONFIG
+    d = create_driver(config)
+    d.run(expect_emits: 2) do
+      File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
+        write_record(f, QUERY_2)
+      }
+
+      File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
+        write_record(f, QUERY_2)
+      }
+      p 'start sleep'
+      sleep 15
+      p 'finish sleep'
+    end
+
+    p events = d.events
+    assert_equal(2, d.instance.instance_variable_get('@watchers').size)
+    assert_equal(true, events.length > 0)
+    assert_equal(1, 1)
+    assert_equal(9, events[0][2]['thread_id'])
+    assert_equal('root', events[0][2]['username'])
+    assert_equal('alpaca', events[0][2]['schema_name'])
+    assert_equal('127.0.0.1:34612', events[0][2]['client'])
+    assert_equal(0, events[0][2]['HID'])
+    assert_equal('127.0.0.1:3306', events[0][2]['server'])
+    assert_equal('2018-05-10 09:24:16', events[0][2]['start_time'])
+    assert_equal('2018-05-10 09:24:16', events[0][2]['end_time'])
+    assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
+    assert_equal('SELECT * FROM test', events[0][2]['query'])
+
+    assert_equal(2, d.instance.instance_variable_get('@watchers').size)
+    assert_equal(true, events.length > 0)
+    assert_equal(1, 1)
+    assert_equal(9, events[1][2]['thread_id'])
+    assert_equal('root', events[1][2]['username'])
+    assert_equal('alpaca', events[1][2]['schema_name'])
+    assert_equal('127.0.0.1:34612', events[1][2]['client'])
+    assert_equal(0, events[1][2]['HID'])
+    assert_equal('127.0.0.1:3306', events[1][2]['server'])
+    assert_equal('2018-05-10 09:24:16', events[1][2]['start_time'])
+    assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
+    assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
+    assert_equal('show databases', events[1][2]['query'])
+
+  end
+
   private
 
   def write_record(f, param)
