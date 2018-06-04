@@ -4,6 +4,7 @@ require "fluent/plugin/in_proxysql_query_log.rb"
 class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   setup do
     Fluent::Test.setup
+    Pathname.glob("#{TMP_DIR}/*").each{|p| File.delete(p)}
   end
 
   TMP_DIR = File.dirname(__FILE__) + '/../tmp/proxysql_query_log'
@@ -76,7 +77,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
       write_record(f, QUERY_1)
     }
     File.open("#{TMP_DIR}/query_log.00000002", 'wb') {|f|
-      write_record(f, QUERY_1)
+      write_record(f, QUERY_2)
     }
 
     config = MULTI_FILE_CONFIG
@@ -118,7 +119,6 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
     assert_equal('show databases', events[1][2]['query'])
-
   end
 
   private
