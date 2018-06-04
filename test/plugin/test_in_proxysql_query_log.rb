@@ -11,11 +11,13 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   CONFIG = config_element('ROOT', '', {
       'path' => "#{TMP_DIR}/query_log.00000001",
       'tag' => 't1',
+      'refresh_interval' => 2
   })
 
   MULTI_FILE_CONFIG = config_element('ROOT', '', {
       'path' => "#{TMP_DIR}/query_log*",
       'tag' => 't1',
+      'refresh_interval' => 2
   })
 
   QUERY_1 = {
@@ -132,19 +134,18 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
       File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
         write_record(f, QUERY_2)
       }
+      sleep 5
 
       File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
         write_record(f, QUERY_2)
       }
-      p 'start sleep'
-      sleep 15
-      p 'finish sleep'
     end
 
-    p events = d.events
+    events = d.events
+
     assert_equal(2, d.instance.instance_variable_get('@watchers').size)
     assert_equal(true, events.length > 0)
-    assert_equal(1, 1)
+
     assert_equal(9, events[0][2]['thread_id'])
     assert_equal('root', events[0][2]['username'])
     assert_equal('alpaca', events[0][2]['schema_name'])
@@ -156,9 +157,6 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
     assert_equal('SELECT * FROM test', events[0][2]['query'])
 
-    assert_equal(2, d.instance.instance_variable_get('@watchers').size)
-    assert_equal(true, events.length > 0)
-    assert_equal(1, 1)
     assert_equal(9, events[1][2]['thread_id'])
     assert_equal('root', events[1][2]['username'])
     assert_equal('alpaca', events[1][2]['schema_name'])

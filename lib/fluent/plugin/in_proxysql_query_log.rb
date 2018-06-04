@@ -80,7 +80,7 @@ module Fluent
 
       def stop_watchers(paths)
         paths.each do |path|
-          w = @watchers[path]
+          w = @watchers.delete(path) if w
           w.detach if w
         end
       end
