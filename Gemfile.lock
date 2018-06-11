@@ -3,7 +3,7 @@ PATH
   specs:
     fluent-plugin-proxysql-query-log (0.2.0)
       cool.io
-      fluentd (= 0.14.16)
+      fluentd (>= 0.14.2, < 2)
       proxysql_query_log-parser
 
 GEM
