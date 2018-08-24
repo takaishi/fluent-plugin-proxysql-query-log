@@ -5,6 +5,7 @@ module Fluent
         def initialize(path, interval, pos_storage, router, tag, log)
           super(path, interval)
 
+          @path = path
           @parser = ProxysqlQueryLog::Parser.new
           @pos_storage = pos_storage
           @router = router
@@ -20,10 +21,12 @@ module Fluent
         end
 
         def on_change(previous, current)
-          @log.debug ("change: #{@path}")
-          @log.debug ("previous: #{previous}")
-          @log.debug ("current: #{current}")
-          read
+          if current.nlink == 0
+            @log.debug("stop watch: #{@path} (deleted)")
+            detach
+          else
+            read
+          end
         end
 
         def read
@@ -71,6 +74,7 @@ module Fluent
         end
 
         def detach
+          @pos_storage.delete(@path)
           @attached = false
           super
         end
