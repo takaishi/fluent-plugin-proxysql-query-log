@@ -40,6 +40,9 @@ module Fluent
             @router.emit(@tag, query.start_time/1000/1000, record(query))
             @pos_storage.put(@path, @io.pos)
           end
+
+        ensure
+          @io.close
         end
 
         def record(query)
