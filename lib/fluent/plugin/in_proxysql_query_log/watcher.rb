@@ -5,7 +5,6 @@ module Fluent
         def initialize(path, interval, pos_storage, router, tag, log)
           super(path, interval)
 
-          @path = path
           @parser = ProxysqlQueryLog::Parser.new
           @pos_storage = pos_storage
           @router = router
