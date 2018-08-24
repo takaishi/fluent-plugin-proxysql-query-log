@@ -63,7 +63,7 @@ module Fluent
 
       def refresh_watchers
         target_paths = expand_paths
-        stop_watchers(target_paths)
+        remove_detached_watcher
         start_watchers(target_paths)
       end
 
@@ -78,11 +78,8 @@ module Fluent
         end
       end
 
-      def stop_watchers(paths)
-        paths.each do |path|
-          w = @watchers.delete(path) if w
-          w.detach if w
-        end
+      def remove_detached_watcher
+        @watchers = @watchers.select { |k, v| v.attached? }
       end
 
       private
