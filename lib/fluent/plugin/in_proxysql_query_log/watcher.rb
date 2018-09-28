@@ -33,6 +33,7 @@ module Fluent
           seek(@path)
 
           while true
+            @pos = @io.pos
             raw_total_bytes = @io.read(8)
             return unless raw_total_bytes
 
@@ -57,7 +58,10 @@ module Fluent
               'end_time' => convert_time(query.end_time),
               'duration' => query.end_time - query.start_time,
               'digest' => query.digest,
-              'query' => query.query
+              'query' => query.query,
+              'hostname' => hostname,
+              'filename' => @path,
+              'pos' => @pos
           }
         end
 
@@ -77,6 +81,10 @@ module Fluent
         end
         def attached?
           @attached
+        end
+
+        def hostname
+          @hostname ||= Socket.gethostname
         end
       end
     end
