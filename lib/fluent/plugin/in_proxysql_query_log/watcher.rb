@@ -32,13 +32,11 @@ module Fluent
           @io = File.open(@path)
           seek(@path)
 
-          while raw_total_bytes = @io.read(1)
+          while true
+            raw_total_bytes = @io.read(8)
             return unless raw_total_bytes
 
-            total_bytes = raw_total_bytes.unpack('C')[0]
-            @io.seek(7, IO::SEEK_CUR)
-            raw = @io.read(total_bytes)
-            query = @parser.parse(StringIO.new(raw, 'r+'))
+            query = @parser.parse(@io)
             @router.emit(@tag, query.start_time/1000/1000, record(query))
             @pos_storage.put(@path, @io.pos)
           end
