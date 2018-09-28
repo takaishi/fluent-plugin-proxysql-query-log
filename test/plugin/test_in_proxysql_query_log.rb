@@ -7,6 +7,7 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     Pathname.glob("#{TMP_DIR}/*").each{|p| File.delete(p)}
   end
 
+  HOSTNAME = Socket.gethostname
   TMP_DIR = File.dirname(__FILE__) + '/../tmp/proxysql_query_log'
   CONFIG = config_element('ROOT', '', {
       'path' => "#{TMP_DIR}/query_log.00000001",
@@ -47,13 +48,15 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
   }
 
   test 'singlefile' do
-    File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
+    query_log_path_00000001 = "#{TMP_DIR}/query_log.00000001"
+
+    File.open(query_log_path_00000001, 'wb') {|f|
       write_record(f, QUERY_1)
     }
     config = CONFIG
     d = create_driver(config)
     d.run(expect_emits: 2) do
-      File.open("#{TMP_DIR}/query_log.00000001", "ab") {|f|
+      File.open(query_log_path_00000001, "ab") {|f|
         write_record(f, QUERY_2)
       }
     end
@@ -72,6 +75,9 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[0][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
     assert_equal('SELECT * FROM test', events[0][2]['query'])
+    assert_equal(0, events[0][2]['pos'])
+    assert_equal(HOSTNAME, events[0][2]['hostname'])
+    assert_equal(query_log_path_00000001, events[0][2]['filename'])
 
     assert_equal(1, d.instance.instance_variable_get('@watchers').size)
     assert_equal(true, events.length > 0)
@@ -86,23 +92,29 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
     assert_equal('show databases', events[1][2]['query'])
+    assert_equal(100, events[1][2]['pos'])
+    assert_equal(HOSTNAME, events[1][2]['hostname'])
+    assert_equal(query_log_path_00000001, events[1][2]['filename'])
   end
 
   test 'multifile' do
-    File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
+    query_log_path_00000001 = "#{TMP_DIR}/query_log.00000001"
+    query_log_path_00000002 = "#{TMP_DIR}/query_log.00000002"
+
+    File.open(query_log_path_00000001, 'wb') {|f|
       write_record(f, QUERY_1)
     }
-    File.open("#{TMP_DIR}/query_log.00000002", 'wb') {|f|
+    File.open(query_log_path_00000002, 'wb') {|f|
       write_record(f, QUERY_2)
     }
 
     config = MULTI_FILE_CONFIG
     d = create_driver(config)
     d.run(expect_emits: 2) do
-      File.open("#{TMP_DIR}/query_log.00000001", "ab") {|f|
+      File.open(query_log_path_00000001, "ab") {|f|
         write_record(f, QUERY_1)
       }
-      File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
+      File.open(query_log_path_00000002, "ab") {|f|
         write_record(f, QUERY_2)
       }
     end
@@ -121,6 +133,9 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[0][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
     assert_equal('SELECT * FROM test', events[0][2]['query'])
+    assert_equal(0, events[0][2]['pos'])
+    assert_equal(HOSTNAME, events[0][2]['hostname'])
+    assert_equal(query_log_path_00000001, events[0][2]['filename'])
 
     assert_equal(2, d.instance.instance_variable_get('@watchers').size)
     assert_equal(true, events.length > 0)
@@ -135,22 +150,28 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
     assert_equal('show databases', events[1][2]['query'])
+    assert_equal(0, events[1][2]['pos'])
+    assert_equal(HOSTNAME, events[1][2]['hostname'])
+    assert_equal(query_log_path_00000002, events[1][2]['filename'])
   end
 
   test 'rotate_file' do
-    File.open("#{TMP_DIR}/query_log.00000001", 'wb') {|f|
+    query_log_path_00000001 = "#{TMP_DIR}/query_log.00000001"
+    query_log_path_00000002 = "#{TMP_DIR}/query_log.00000002"
+
+    File.open(query_log_path_00000001, 'wb') {|f|
       write_record(f, QUERY_1)
     }
 
     config = MULTI_FILE_CONFIG
     d = create_driver(config)
     d.run(expect_emits: 2) do
-      File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
+      File.open(query_log_path_00000002, "ab") {|f|
         write_record(f, QUERY_2)
       }
       sleep 5
 
-      File.open("#{TMP_DIR}/query_log.00000002", "ab") {|f|
+      File.open(query_log_path_00000002, "ab") {|f|
         write_record(f, QUERY_2)
       }
     end
@@ -170,6 +191,9 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[0][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[0][2]['digest'])
     assert_equal('SELECT * FROM test', events[0][2]['query'])
+    assert_equal(0, events[1][2]['pos'])
+    assert_equal(HOSTNAME, events[1][2]['hostname'])
+    assert_equal(query_log_path_00000002, events[1][2]['filename'])
 
     assert_equal(9, events[1][2]['thread_id'])
     assert_equal('root', events[1][2]['username'])
@@ -181,6 +205,9 @@ class ProxysqlQueryLogInputTest < Test::Unit::TestCase
     assert_equal('2018-05-10 09:24:16', events[1][2]['end_time'])
     assert_equal('0xD69C6B36F32D2EAE', events[1][2]['digest'])
     assert_equal('show databases', events[1][2]['query'])
+    assert_equal(0, events[1][2]['pos'])
+    assert_equal(HOSTNAME, events[1][2]['hostname'])
+    assert_equal(query_log_path_00000002, events[1][2]['filename'])
 
   end
 

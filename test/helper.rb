@@ -1,4 +1,5 @@
 $LOAD_PATH.unshift(File.expand_path("../../", __FILE__))
+require 'socket'
 require "test-unit"
 require "fluent/test"
 require "fluent/test/driver/input"
