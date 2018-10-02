@@ -4,7 +4,7 @@ PATH
     fluent-plugin-proxysql-query-log (0.4.0)
       cool.io
       fluentd (>= 0.14.2, < 2)
-      proxysql_query_log-parser
+      proxysql_query_log-parser (= 0.0.3)
 
 GEM
   remote: https://rubygems.org/
