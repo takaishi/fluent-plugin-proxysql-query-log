@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "fluent-plugin-systemd"
   spec.add_runtime_dependency "fluentd", [">= 0.14.2", "< 2"]
   spec.add_dependency 'cool.io'
-  spec.add_dependency 'proxysql_query_log-parser', "0.0.3"
+  spec.add_dependency 'proxysql_query_log-parser', "0.0.4"
 end
