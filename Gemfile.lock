@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fluent-plugin-proxysql-query-log (0.4.1)
+    fluent-plugin-proxysql-query-log (0.4.2)
       cool.io
       fluentd (>= 0.14.2, < 2)
       proxysql_query_log-parser (= 0.0.4)
