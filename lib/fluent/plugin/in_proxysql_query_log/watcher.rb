@@ -22,6 +22,7 @@ module Fluent
         def on_change(previous, current)
           if current.nlink == 0
             @log.debug("stop watch: #{@path} (deleted)")
+            @pos_storage.delete(@path)
             detach
           else
             read
@@ -75,7 +76,6 @@ module Fluent
         end
 
         def detach
-          @pos_storage.delete(@path)
           @attached = false
           super
         end
